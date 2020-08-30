@@ -1,0 +1,3 @@
+imu_topic: /raw_imu
+pose_topic: /gnss_pose
+frame_id: Gnss
