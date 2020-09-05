@@ -6,7 +6,8 @@
 #include <thread>
 #include "tf/transform_datatypes.h"
 #include "imu_driver/Newton2Parase.h"
-#include "imu_driver/bestpose.h"
+#include <proj_api.h>
+//#include "imu_driver/bestpose.h"
 //#include <ros/time.h>
 
 
@@ -26,6 +27,11 @@ Newton2Parser::Newton2Parser(ros::Publisher& imu_pub,ros::Publisher& pose_pub,st
     pose_pub_ = pose_pub;
     device_name_ = "/dev/ttyACM0";
     baud_rate_ = B115200;
+    const char *WGS84_TEXT = "+proj=latlong +ellps=WGS84";
+    const char *proj4_text = "+proj=utm +zone=51 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+    wgs84pj_source_ = pj_init_plus(WGS84_TEXT);
+    utm_target_ = pj_init_plus(proj4_text);
+
     connect();
 }
 
@@ -302,6 +308,7 @@ void Newton2Parser::prepareMessage()
     }
 
     //分配数据
+    //TODO:由于数据暂时比较少，如增加RTK的话，可以看一下RTK是否有bestpose信号
     if(message_id == novatel::RAWIMU)
     {
         seq_++;
@@ -318,20 +325,34 @@ void Newton2Parser::prepareMessage()
         msg_imu_.angular_velocity.y = -imu->y_angle_change_neg*gyro_scale_;
         msg_imu_.angular_velocity.x = imu->x_angle_change*gyro_scale_;
         msg_imu_.angular_velocity.z = imu->z_angle_change*gyro_scale_;
+
         imu_pub_.publish(msg_imu_);
     }
     else if(message_id == novatel::INSPVA)
     {
         const novatel::InsPva* inspva = reinterpret_cast<novatel::InsPva*>(message);
         double time = inspva->gps_week*60 * 60 * 24 * 7 +inspva->gps_seconds;
+        double posx = inspva->longitude*M_PI/180;
+        double posy = inspva->latitude*M_PI/180;
+        pj_transform(wgs84pj_source_, utm_target_, 1, 1, &posx, &posy, NULL);
 
-        msg_pose_.position.x = inspva->longitude;
-        msg_pose_.position.y = inspva->latitude;
+        msg_pose_.position.x = posx;
+        msg_pose_.position.y = posy;
         msg_pose_.position.z = inspva->height;
-        msg_pose_.orientation = tf::createQuaternionMsgFromRollPitchYaw(inspva->roll *3.141592653/180.0,
-        -inspva->pitch *3.141592653/180.0,(90.0 - inspva->azimuth)*3.141592653/180.0);
+        roll_ = inspva->roll *3.141592653/180.0;
+        pitch_ = -inspva->pitch *3.141592653/180.0;
+        yaw_= (90.0 - inspva->azimuth)*3.141592653/180.0;
+        msg_pose_.orientation = tf::createQuaternionMsgFromRollPitchYaw(roll_,
+        pitch_,yaw_);
 
         pose_pub_.publish(msg_pose_);
+
+        tf::Transform transform;
+        transform.setOrigin(tf::Vector3(posy,posx,inspva->height));
+        tf::Quaternion quaternion;
+        quaternion.setRPY(roll_, pitch_, yaw_);
+        transform.setRotation(quaternion);
+        br_.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "map", "gps"));
     }
 
 }

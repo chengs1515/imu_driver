@@ -17,6 +17,8 @@
 #include <fstream>
 #include <sensor_msgs/Imu.h>
 #include <geometry_msgs/Pose.h>
+#include <proj_api.h>
+#include <tf/transform_broadcaster.h>
 
 namespace imu_driver{
 
@@ -48,6 +50,12 @@ private:
     double sampling_rate_hz_ = 100.0;
     float imu_span_ = 1.0/sampling_rate_hz_;
     float time_pre_ = -1;
+    projPJ wgs84pj_source_;
+    projPJ utm_target_;
+    tf::TransformBroadcaster br_;
+    double roll_ = 0;
+    double pitch_ = 0;
+    double yaw_ = 0;
 
     ros::Publisher imu_pub_,pose_pub_;
     std::string frame_;
