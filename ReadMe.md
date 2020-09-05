@@ -1,6 +1,32 @@
 # IMU
 
-目前代码是**第一版**，后期还会在这一版的代码中更新，代码分为两部分。
+目前代码是**第二版**，后期还会在这一版的代码中更新，代码分为两部分。
+
+* <font color=red>**在运行代码前**,查看代码*NewtonParase.cc* 文件，注意第31行</font>
+
+  ~~~C++
+  const char *proj4_text = "+proj=utm +zone=50 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+  ~~~
+
+  长春是51  所以默认设为51 如果换了一个地方，<font color=Blue>**必须修改**</font>
+
+* **安装依赖** 
+
+  由于GNSS本身返回的数据是经纬度信息，而autoware信息本身是采用**UTM**坐标的方式，所以需要转换成UTM的坐标，安装如下依赖
+
+  ~~~shell
+  sudo apt-get install sqlite3
+  ~~~
+
+  还有在proj上的依赖
+
+  ~~~html
+  https://proj.org/install.html
+  ~~~
+
+  安装方法网站上有，我使用的是源码进行安装，CMake安装方式，也推荐这种安装方式。下载的是[7.1.0](https://proj.org/download.html#current-release)
+
+  
 
 * imu_driver为IMU在ROS环境下的驱动，运行方法如下：
 
