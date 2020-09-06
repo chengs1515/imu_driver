@@ -221,7 +221,7 @@ int main()
     serialstream ss;
     std::ofstream ofile("gnssData.bin",std::ios::binary|std::ios::app);
     int times = 0;
-    while(times<10000)
+    while(true)
     {
         ssize_t rdle = ::read(ss.fd_, ss.buffer_, ss.BUFFER_SIZE);
         uint8_t* buff = ss.buffer_;

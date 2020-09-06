@@ -16,7 +16,6 @@ uint8 num_sats_l1
 uint8 num_sats_multi  
 uint8 reserved
 uint8 extended_solution_status  
-               
+
 uint8 galileo_beidou_used_mask
 uint8 gps_glonass_used_mask
-
