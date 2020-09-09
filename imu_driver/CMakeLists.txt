@@ -7,6 +7,7 @@ project(imu_driver)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+ADD_DEFINITIONS(-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H=1)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   geometry_msgs
@@ -15,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   message_generation
 )
-
+find_package(PROJ REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -121,6 +122,7 @@ catkin_package(
 include_directories(
  include
   ${catkin_INCLUDE_DIRS}
+  ${PROJ_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -152,6 +154,7 @@ add_executable(IMU ${DIR_SRCS})
 ## Specify libraries to link a library or executable target against
  target_link_libraries(IMU
    ${catkin_LIBRARIES}
+   ${PROJ_LIBRARIES}
  )
 
 #############
