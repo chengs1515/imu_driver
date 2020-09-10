@@ -46,7 +46,7 @@ void Newton2Parser::connect()
             return;
         }
     }
-
+    /*   从apollo上看到这个只是配置命令，只需要要在配置的时候发送一次，并不需要每次启动都发送
     std::vector<std::string> login_commands{
     "SETWHEELPARAMETERS 100 1 1\r\n",
     "UNLOGALL THISPORT\r\n",
@@ -96,6 +96,7 @@ void Newton2Parser::connect()
         if(sendtimes == 5)
             cout<<"This command : "<<command<<"failed to send"<<endl;
     }
+    */
 }
 
 void Newton2Parser::openDevice()
@@ -308,7 +309,7 @@ void Newton2Parser::prepareMessage()
     }
 
     //分配数据
-    //TODO:由于数据暂时比较少，如增加RTK的话，可以看一下RTK是否有bestpose信号
+    //TODO:由于数据暂时比较少，如增加RTK的话，可以看一下RTK是否有bestpose信号，以后如果信号多起来了，可以增加更多的信号
     if(message_id == novatel::RAWIMU)
     {
         seq_++;
@@ -319,11 +320,11 @@ void Newton2Parser::prepareMessage()
         msg_imu_.header.stamp = ros::Time::now();
         msg_imu_.header.frame_id = frame_;
         msg_imu_.header.seq = seq_;
-        msg_imu_.linear_acceleration.y = imu->y_velocity_change_neg*accel_scale_;
-        msg_imu_.linear_acceleration.x = -imu->x_velocity_change*accel_scale_;
+        msg_imu_.linear_acceleration.y = -imu->x_velocity_change*accel_scale_;
+        msg_imu_.linear_acceleration.x = -imu->y_velocity_change_neg*accel_scale_;
         msg_imu_.linear_acceleration.z = -imu->z_velocity_change*accel_scale_;
-        msg_imu_.angular_velocity.y = -imu->y_angle_change_neg*gyro_scale_;
-        msg_imu_.angular_velocity.x = imu->x_angle_change*gyro_scale_;
+        msg_imu_.angular_velocity.y = -imu->x_angle_change*gyro_scale_;
+        msg_imu_.angular_velocity.x = -imu->y_angle_change_neg*gyro_scale_;
         msg_imu_.angular_velocity.z = imu->z_angle_change*gyro_scale_;
 
         imu_pub_.publish(msg_imu_);
