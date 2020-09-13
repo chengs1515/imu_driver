@@ -322,7 +322,7 @@ void Newton2Parser::prepareMessage()
         msg_imu_.header.seq = seq_;
         msg_imu_.linear_acceleration.y = -imu->x_velocity_change*accel_scale_;
         msg_imu_.linear_acceleration.x = -imu->y_velocity_change_neg*accel_scale_;
-        msg_imu_.linear_acceleration.z = -imu->z_velocity_change*accel_scale_;
+        msg_imu_.linear_acceleration.z = imu->z_velocity_change*accel_scale_;
         msg_imu_.angular_velocity.y = -imu->x_angle_change*gyro_scale_;
         msg_imu_.angular_velocity.x = -imu->y_angle_change_neg*gyro_scale_;
         msg_imu_.angular_velocity.z = imu->z_angle_change*gyro_scale_;
